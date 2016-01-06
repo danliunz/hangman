@@ -27,22 +27,23 @@ module Hangman
         one_game_run
         console.display_stage(state)
         
-        if state.game_over?
-          console.display_game_over(state)
-          break
-        end
+        if state.game_over?; break end
       end
     end
 
     private
     
-    # User guesses one character, and game processes it
+    # One game run: user guesses one character, game state is updated accordingly
     def one_game_run
-      guess = console.take_user_guess
+      begin
+        guess = console.take_user_guess
+      rescue IOError # user aborts game
+        exit 
+      end
+      
       if !validate_user_guess(guess); return end
 
       state.user_guesses << guess
-      
       refresh_game_state
     end
     
@@ -62,15 +63,15 @@ module Hangman
     
     def refresh_game_state
       target = state.target_word.chars.uniq
-      right_guess_num  = 0
       
-      state.user_guesses.each do |g|
-        right_guess_num += 1 if target.include?(g)
-      end
+      right_guesses = 
+        state.user_guesses.inject(0) do |r, guess|
+          target.include?(guess) ? r + 1 : r
+        end
       
-      if right_guess_num >= target.size
+      if right_guesses >= target.size
         state.user_win
-      elsif state.user_guesses.size - right_guess_num >= Config::MAX_GUESS_MISS
+      elsif state.user_guesses.size - right_guesses >= Config::MAX_GUESS_MISS
         state.user_lose
       end 
     end

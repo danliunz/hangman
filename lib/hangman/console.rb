@@ -5,15 +5,18 @@ module Hangman
   # Terminal to output game status
   class Console
     
+    # Return nil if user input is unavailable
     def take_user_guess
       $stdout.print("Make a guess: ")
       
-      # beware of ctrl+d and ctrl+c key combination
-      # instead of quitting inelegantly, we ask user to re-guess
       begin
         guess = $stdin.gets
-        guess = guess && guess.chomp[0]
-      rescue Interrupt
+        if guess.nil? # user enters ctrl+d
+          raise IOError, "User aborts game"
+        end
+        
+        guess = guess.chomp[0]
+      rescue Interrupt # user enters ctrl+c, ask to guess
         guess = nil
       end
       
@@ -21,13 +24,24 @@ module Hangman
     end
     
     def display_stage(game_state) 
+      $stdout.puts
+      
       display_target_word(game_state)
       display_last_guess(game_state)
       display_misses(game_state)
       
       $stdout.puts
       
+      if game_state.game_over?
+        display_game_over(game_state)
+      end
     end
+    
+    def warn(msg) 
+      $stdout.puts(msg)
+    end
+    
+    private
     
     def display_game_over(game_state)
       if game_state.user_win?
@@ -38,12 +52,6 @@ module Hangman
         raise "Game internal error, invalid game status #{game_state}"
       end
     end
-    
-    def warn(msg) 
-      $stdout.puts(msg)
-    end
-    
-    private
     
     def display_target_word(game_state)
       $stdout.print("Word: ")

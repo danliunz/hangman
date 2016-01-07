@@ -26,15 +26,13 @@ module Hangman
     def display_stage(game_state) 
       $stdout.puts
       
-      display_target_word(game_state)
+      display_secret(game_state)
       display_last_guess(game_state)
       display_misses(game_state)
       
       $stdout.puts
       
-      if game_state.game_over?
-        display_game_over(game_state)
-      end
+      display_game_result(game_state)
     end
     
     def warn(msg) 
@@ -43,20 +41,19 @@ module Hangman
     
     private
     
-    def display_game_over(game_state)
+    def display_game_result(game_state)
       if game_state.user_win?
         $stdout.puts("You have won!")
       elsif game_state.user_lose?
         $stdout.puts("You have lost...")
-      else 
-        raise "Game internal error, invalid game status #{game_state}"
+        $stdout.puts("The secret word is: #{game_state.secret.join}")
       end
     end
     
-    def display_target_word(game_state)
+    def display_secret(game_state)
       $stdout.print("Word: ")
       
-      game_state.target_word.chars.each do |c|
+      game_state.secret.each do |c|
         if game_state.user_guesses.include?(c)
           $stdout.print("#{c} ")
         else
@@ -78,9 +75,8 @@ module Hangman
     
     def display_misses(game_state)
       $stdout.print("Misses: ")
-      
-      target = game_state.target_word.chars
-      misses = game_state.user_guesses.reject { |g| target.include?(g) }
+        
+      misses = game_state.missed_user_guesses
       $stdout.print(misses.join(","))
       $stdout.puts(" (#{Game::Config::MAX_GUESS_MISS - misses.size} chances left)")
     end

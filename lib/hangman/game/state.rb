@@ -2,42 +2,34 @@ module Hangman
 class Game
     
   class State
-    UNDECIDED = 0
-    USER_WIN = 1
-    USER_LOSE = 2
-
-    attr_reader :end_result
     
-    # the word which player guesses
-    attr_accessor :target_word
+    # the word which player guesses, stored as array of chars
+    attr_accessor :secret
+    
+    def initialize(secret: )
+      self.secret = secret.split(//)
+    end
     
     # the characters user has guessed so far
     def user_guesses
       @user_guesses ||= []
     end
     
-    def initialize
-      @end_result = UNDECIDED
+    # the guesses user has missed so far
+    def missed_user_guesses
+      user_guesses.reject { |g| secret.include?(g) }
     end
     
     def game_over?
-      end_result != UNDECIDED
+      user_win? || user_lose?
     end
 
     def user_win?
-      end_result == USER_WIN
-    end
-    
-    def user_win
-      @end_result = USER_WIN
+      user_guesses.size - missed_user_guesses.size() >= secret.uniq.size
     end
     
     def user_lose?
-      end_result == USER_LOSE
-    end
-    
-    def user_lose
-      @end_result = USER_LOSE
+      missed_user_guesses.size >= Config::MAX_GUESS_MISS
     end
   end
 

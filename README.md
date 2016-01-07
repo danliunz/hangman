@@ -1,4 +1,5 @@
 Hangman game for Powershop NZ traning session
 
-to run the game
+To run the game:
+
 $ ruby bin/game_controller.rb

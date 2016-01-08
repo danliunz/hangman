@@ -10,6 +10,24 @@ class Game
       self.secret = secret.split(//)
     end
     
+    def take_new_guess(*guess)
+      raise ArgumentError, "nil guess disallowed" if guess.include?(nil)
+      
+      if guess.any? { |g| guess_before?(g) }
+        raise ArgumentError, "repeated guess disallowed" 
+      end
+      
+      user_guesses.push(*guess)
+    end
+    
+    def guess_before?(guess) 
+      user_guesses.include?(guess)
+    end
+    
+    def last_guess
+      user_guesses[-1]
+    end
+    
     # the characters user has guessed so far
     def user_guesses
       @user_guesses ||= []

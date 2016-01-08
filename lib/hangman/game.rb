@@ -5,45 +5,46 @@ module Hangman
   
   class Game
     
-    attr_reader :console, :state
+    attr_reader :ui, :state
     
     def initialize
-      @console = Console.new
+      @ui = Console.new
       @state = State.new(secret: ChooseRandomWord.choose)
     end
    
     def start      
       # display initial stage before user takes any guess
-      console.display_stage(state)
+      ui.display_stage(state)
 
       loop do
-        one_game_run
-        console.display_stage(state)
+        consume_user_input
+        
+        ui.display_stage(state)
 
-        if state.game_over?; break end
+        break if state.game_over?
       end
     end
     
     private
 
-    def one_game_run
+    def consume_user_input
       begin
-        guess = console.take_user_guess
+        guess = ui.take_user_guess
       rescue IOError # user aborts game
         exit
       end
       
-      state.user_guesses << guess if user_guess_valid?(guess)
+      state.take_new_guess(guess) if user_guess_valid?(guess)
     end
 
     def user_guess_valid?(guess)
       if guess.nil?
-        console.warn("Come on, make a guess")
+        ui.invalid_guess
         return false
       end
 
-      if state.user_guesses.include?(guess)
-        console.warn("Do not make the same guess, try again")
+      if state.guess_before?(guess)
+        ui.repeated_guess
         false
       else 
         true

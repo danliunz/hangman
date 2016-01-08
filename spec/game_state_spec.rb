@@ -2,19 +2,19 @@ require "hangman/game/state"
 require "hangman/game/config"
 
 describe Hangman::Game::State do
-  def game_not_over
+  def expect_game_not_over
     expect(@game_state.game_over?).to be false
     expect(@game_state.user_win?).to be false
     expect(@game_state.user_lose?).to be false
   end
   
-  def user_lose
+  def expect_user_lose
     expect(@game_state.game_over?).to be true
     expect(@game_state.user_win?).to be false
     expect(@game_state.user_lose?).to be true  
   end
   
-  def user_win
+  def expect_user_win
     expect(@game_state.game_over?).to be true
     expect(@game_state.user_win?).to be true
     expect(@game_state.user_lose?).to be false  
@@ -26,65 +26,78 @@ describe Hangman::Game::State do
   
   context "initial state(no user guesses)" do
     it "ensures game is not over yet" do
-      game_not_over
+      expect_game_not_over
       
       expect(@game_state.user_guesses).to be_empty
       expect(@game_state.missed_user_guesses).to be_empty
+      expect(@game_state.last_guess).to be_nil
     end
   end
   
   context "game with user guesses" do
+    it "detects repeated guess" do
+      @game_state.take_new_guess("a", "b", "c")
+      
+      expect do
+        @game_state.take_new_guess("a")  
+      end.to raise_error(ArgumentError)
+    end
+    
     it "is still open game after user misses for " +
        "< #{Hangman::Game::Config::MAX_GUESS_MISS} times" do
       
       # 1. guess 'x', wrong
-      @game_state.user_guesses << "x"
+      @game_state.take_new_guess("x")
       
-      game_not_over
+      expect_game_not_over
+      expect(@game_state.last_guess).to eq("x")
       expect(@game_state.missed_user_guesses).to include("x")
       expect(@game_state.missed_user_guesses.size).to eq(1)
       
       # 2. guess 'y', wrong again
-      @game_state.user_guesses << "y"
+      @game_state.take_new_guess("y")
       
-      game_not_over
+      expect_game_not_over
+      expect(@game_state.last_guess).to eq("y")
       expect(@game_state.missed_user_guesses).to contain_exactly("x", "y")
       
       # 3. guess 'p', right
-      @game_state.user_guesses << "p"
+      @game_state.take_new_guess("p")
       
-      game_not_over
+      expect_game_not_over
+      expect(@game_state.last_guess).to eq("p")
       expect(@game_state.missed_user_guesses).to contain_exactly("x", "y")
       
       # 4. guess 'z', wrong again
-      @game_state.user_guesses << "z"
+      @game_state.take_new_guess("z")
       
-      game_not_over
+      expect_game_not_over
+      expect(@game_state.last_guess).to eq("z")
       expect(@game_state.missed_user_guesses).to contain_exactly("x", "y", "z")
     end
     
     it "is over(user lose) after user misses " + 
        "#{Hangman::Game::Config::MAX_GUESS_MISS} guesses" do
-      @game_state.user_guesses << "p" 
+      @game_state.take_new_guess("p")
       
-      1.upto(Hangman::Game::Config::MAX_GUESS_MISS) do |i|
-        @game_state.user_guesses << i.to_s
+      Hangman::Game::Config::MAX_GUESS_MISS.times do |i|
+        @game_state.take_new_guess(i.to_s)
       end
       
-      user_lose
+      expect_user_lose
     end
     
     it "is over(user win) after user guesses all secret chars" do
-      @game_state.secret.shuffle.each { |c| @game_state.user_guesses << c }
+      @game_state.secret.shuffle.each { |c| @game_state.take_new_guess(c) }
             
-      user_win
+      expect_user_win
     end
     
     it "is over(user win) after user guesses all secret chars with a few misses" do
-      @game_state.user_guesses << "1" << "2" << "p" << "3"
-      @game_state.user_guesses.insert(-1, *(@game_state.secret))
+      @game_state.take_new_guess("1", "2", "3")
+      @game_state.take_new_guess(*(@game_state.secret))
       
-      user_win
+      expect_user_win
     end
   end
 end

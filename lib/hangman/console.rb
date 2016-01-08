@@ -35,11 +35,19 @@ module Hangman
       display_game_result(game_state)
     end
     
+    def invalid_guess
+      warn("Make a guess please")
+    end
+    
+    def repeated_guess
+      warn("Do not repeat prior guess")
+    end
+
+    private
+    
     def warn(msg) 
       $stdout.puts(msg)
     end
-    
-    private
     
     def display_game_result(game_state)
       if game_state.user_win?
@@ -53,23 +61,17 @@ module Hangman
     def display_secret(game_state)
       $stdout.print("Word: ")
       
-      game_state.secret.each do |c|
-        if game_state.user_guesses.include?(c)
-          $stdout.print("#{c} ")
-        else
-          $stdout.print("_ ")
-        end
-      end
+      $stdout.puts(
+        game_state.secret.map do |c|
+          game_state.guess_before?(c) ? "#{c} " : "_ "
+        end.join
+      )
       
-      $stdout.puts
     end
     
     def display_last_guess(game_state)
       $stdout.print("Guess: ")
-      
-      last_guess = game_state.user_guesses[-1]
-      $stdout.print("#{last_guess}") if last_guess
-      
+      $stdout.print("#{game_state.last_guess}") if game_state.last_guess
       $stdout.puts
     end
     

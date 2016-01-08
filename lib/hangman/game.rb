@@ -34,7 +34,7 @@ module Hangman
         exit
       end
       
-      state.take_new_guess(guess) if user_guess_valid?(guess)
+      state.submit_guess(guess) if user_guess_valid?(guess)
     end
 
     def user_guess_valid?(guess)

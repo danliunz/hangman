@@ -10,7 +10,7 @@ class Game
       self.secret = secret.split(//)
     end
     
-    def take_new_guess(*guess)
+    def submit_guess(*guess)
       raise ArgumentError, "nil guess disallowed" if guess.include?(nil)
       
       if guess.any? { |g| guess_before?(g) }

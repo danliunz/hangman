@@ -36,10 +36,10 @@ describe Hangman::Game::State do
   
   context "game with user guesses" do
     it "detects repeated guess" do
-      @game_state.take_new_guess("a", "b", "c")
+      @game_state.submit_guess("a", "b", "c")
       
       expect do
-        @game_state.take_new_guess("a")  
+        @game_state.submit_guess("a")  
       end.to raise_error(ArgumentError)
     end
     
@@ -47,7 +47,7 @@ describe Hangman::Game::State do
        "< #{Hangman::Game::Config::MAX_GUESS_MISS} times" do
       
       # 1. guess 'x', wrong
-      @game_state.take_new_guess("x")
+      @game_state.submit_guess("x")
       
       expect_game_not_over
       expect(@game_state.last_guess).to eq("x")
@@ -55,21 +55,21 @@ describe Hangman::Game::State do
       expect(@game_state.missed_user_guesses.size).to eq(1)
       
       # 2. guess 'y', wrong again
-      @game_state.take_new_guess("y")
+      @game_state.submit_guess("y")
       
       expect_game_not_over
       expect(@game_state.last_guess).to eq("y")
       expect(@game_state.missed_user_guesses).to contain_exactly("x", "y")
       
       # 3. guess 'p', right
-      @game_state.take_new_guess("p")
+      @game_state.submit_guess("p")
       
       expect_game_not_over
       expect(@game_state.last_guess).to eq("p")
       expect(@game_state.missed_user_guesses).to contain_exactly("x", "y")
       
       # 4. guess 'z', wrong again
-      @game_state.take_new_guess("z")
+      @game_state.submit_guess("z")
       
       expect_game_not_over
       expect(@game_state.last_guess).to eq("z")
@@ -78,24 +78,24 @@ describe Hangman::Game::State do
     
     it "is over(user lose) after user misses " + 
        "#{Hangman::Game::Config::MAX_GUESS_MISS} guesses" do
-      @game_state.take_new_guess("p")
+      @game_state.submit_guess("p")
       
       Hangman::Game::Config::MAX_GUESS_MISS.times do |i|
-        @game_state.take_new_guess(i.to_s)
+        @game_state.submit_guess(i.to_s)
       end
       
       expect_user_lose
     end
     
     it "is over(user win) after user guesses all secret chars" do
-      @game_state.secret.shuffle.each { |c| @game_state.take_new_guess(c) }
+      @game_state.secret.shuffle.each { |c| @game_state.submit_guess(c) }
             
       expect_user_win
     end
     
     it "is over(user win) after user guesses all secret chars with a few misses" do
-      @game_state.take_new_guess("1", "2", "3")
-      @game_state.take_new_guess(*(@game_state.secret))
+      @game_state.submit_guess("1", "2", "3")
+      @game_state.submit_guess(*(@game_state.secret))
       
       expect_user_win
     end

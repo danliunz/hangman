@@ -1,27 +1,21 @@
 module Hangman
 
-class ChooseRandomWord  
-  # Return a random English word from dictionary.
-  # The word will be used in a Hangman game
-  def self.choose
-    @words.sample
-  end
-  
-  private
-  
-  def self.build_word_list
-    @words = File.open("/usr/share/dict/words")
-      .readlines
-      .map { |line| line.chomp.downcase }
-      .select { |line| (4..6).cover?(line.length) }
+  class ChooseRandomWord    
+    # Return a random English word from dictionary
+    def self.choose
+      words.sample
+    end
     
-  rescue IOError => e
-    $stderr.puts("Fail to initialize game, aborting...")
-    raise
+    private
+    
+    def self.words
+      @words ||= begin
+        File.open("/usr/share/dict/words")
+          .readlines
+          .map { |line| line.chomp.downcase }
+          .select { |line| line.length.between?(4, 6) }
+      end
+    end
   end
-  
-  build_word_list
-  
-end
 
 end

@@ -9,7 +9,8 @@ module Hangman
     
     def initialize
       @ui = Console.new
-      @state = State.new(secret: ChooseRandomWord.choose)
+      @state = State.new(secret: ChooseRandomWord.choose,
+                         max_misses: Config::MAX_GUESS_MISS)
     end
    
     def start      
@@ -30,7 +31,7 @@ module Hangman
     def consume_user_input
       begin
         guess = ui.take_user_guess
-      rescue IOError # user aborts game
+      rescue Exception # user aborts game, by either ctrl+d or ctrl+c
         exit
       end
       

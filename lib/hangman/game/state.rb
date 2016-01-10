@@ -3,34 +3,28 @@ class Game
     
   class State
     
-    # the word which player guesses, stored as array of chars
-    attr_accessor :secret
+    # secret is stored as an array of chars
+    attr_reader :secret
+    attr_reader :user_guesses, :max_misses
     
-    def initialize(secret: )
-      self.secret = secret.split(//)
+    def initialize(secret:, max_misses:)
+      @secret = secret.split(//)
+      @max_misses = max_misses
+      @user_guesses = []
     end
     
-    def submit_guess(*guess)
-      raise ArgumentError, "nil guess disallowed" if guess.include?(nil)
+    def submit_guess(guess)
+      raise ArgumentError, "duplicate guess #{guess}" if user_guesses.include?(guess)
       
-      if guess.any? { |g| guess_before?(g) }
-        raise ArgumentError, "repeated guess disallowed" 
-      end
-      
-      user_guesses.push(*guess)
+      user_guesses.push(guess)
     end
     
-    def guess_before?(guess) 
+    def guess_before?(guess)
       user_guesses.include?(guess)
     end
     
     def last_guess
-      user_guesses[-1]
-    end
-    
-    # the characters user has guessed so far
-    def user_guesses
-      @user_guesses ||= []
+      user_guesses.last
     end
     
     # the guesses user has missed so far
@@ -47,7 +41,7 @@ class Game
     end
     
     def user_lose?
-      missed_user_guesses.size >= Config::MAX_GUESS_MISS
+      missed_user_guesses.size >= max_misses
     end
   end
 

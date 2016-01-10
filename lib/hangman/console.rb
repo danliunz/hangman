@@ -9,18 +9,7 @@ module Hangman
     def take_user_guess
       $stdout.print("Make a guess: ")
       
-      begin
-        guess = $stdin.gets
-        if guess.nil? # user enters ctrl+d
-          raise IOError, "User aborts game"
-        end
-        
-        guess = guess.chomp[0]
-      rescue Interrupt # user enters ctrl+c, ask to guess
-        guess = nil
-      end
-      
-      guess = guess && guess.downcase
+      guess = $stdin.gets.chomp[0].downcase
     end
     
     def display_stage(game_state) 
@@ -80,7 +69,7 @@ module Hangman
         
       misses = game_state.missed_user_guesses
       $stdout.print(misses.join(","))
-      $stdout.puts(" (#{Game::Config::MAX_GUESS_MISS - misses.size} chances left)")
+      $stdout.puts(" (#{game_state.max_misses - misses.size} chances left)")
     end
   end
   

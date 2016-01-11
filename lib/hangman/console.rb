@@ -5,21 +5,23 @@ module Hangman
   # Terminal to output game status
   class Console
     
-    # Return nil if user input is unavailable
     def take_user_guess
-      $stdout.print("Make a guess: ")
+      print("Make a guess: ")
       
-      guess = $stdin.gets.chomp[0].downcase
+      # If user presses ctrl+d or just a newline char,
+      # return nil indicating invalid input
+      s = gets
+      s && s.length > 1 ? s[0].downcase : nil
     end
     
     def display_stage(game_state) 
-      $stdout.puts
+      puts
       
       display_secret(game_state)
       display_last_guess(game_state)
       display_misses(game_state)
       
-      $stdout.puts
+      puts
       
       display_game_result(game_state)
     end
@@ -35,41 +37,41 @@ module Hangman
     private
     
     def warn(msg) 
-      $stdout.puts(msg)
+      puts(msg)
     end
     
     def display_game_result(game_state)
-      if game_state.user_win?
-        $stdout.puts("You have won!")
-      elsif game_state.user_lose?
-        $stdout.puts("You have lost...")
-        $stdout.puts("The secret word is: #{game_state.secret.join}")
+      if game_state.user_won?
+        puts("You have won!")
+      elsif game_state.user_lost?
+        puts("You have lost...")
+        puts("The secret word is: #{game_state.secret.join}")
       end
     end
     
     def display_secret(game_state)
-      $stdout.print("Word: ")
-      
-      $stdout.puts(
+      print("Word: ")
+
+      result = 
         game_state.secret.map do |c|
-          game_state.guess_before?(c) ? "#{c} " : "_ "
-        end.join
-      )
+          game_state.guessed?(c) ? "#{c} " : "_ "
+        end
       
+      puts result.join
     end
     
     def display_last_guess(game_state)
-      $stdout.print("Guess: ")
-      $stdout.print("#{game_state.last_guess}") if game_state.last_guess
-      $stdout.puts
+      print("Guess: ")
+      print("#{game_state.last_guess}") if game_state.last_guess
+      puts
     end
     
     def display_misses(game_state)
-      $stdout.print("Misses: ")
+      print("Misses: ")
         
       misses = game_state.missed_user_guesses
-      $stdout.print(misses.join(","))
-      $stdout.puts(" (#{game_state.max_misses - misses.size} chances left)")
+      print(misses.join(","))
+      puts(" (#{game_state.max_misses - misses.size} chances left)")
     end
   end
   

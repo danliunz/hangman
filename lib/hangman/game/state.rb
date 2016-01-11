@@ -1,25 +1,22 @@
+require "set"
+
 module Hangman
 class Game
     
   class State
+    attr_reader :secret, :user_guesses, :max_misses
     
-    # secret is stored as an array of chars
-    attr_reader :secret
-    attr_reader :user_guesses, :max_misses
-    
-    def initialize(secret:, max_misses:)
+    def initialize(secret, max_misses: Config::MAX_GUESS_MISS)
       @secret = secret.split(//)
       @max_misses = max_misses
       @user_guesses = []
     end
     
     def submit_guess(guess)
-      raise ArgumentError, "duplicate guess #{guess}" if user_guesses.include?(guess)
-      
-      user_guesses.push(guess)
+      user_guesses << guess unless user_guesses.include?(guess)
     end
     
-    def guess_before?(guess)
+    def guessed?(guess)
       user_guesses.include?(guess)
     end
     
@@ -33,14 +30,14 @@ class Game
     end
     
     def game_over?
-      user_win? || user_lose?
+      user_won? || user_lost?
     end
 
-    def user_win?
-      user_guesses.size - missed_user_guesses.size() >= secret.uniq.size
+    def user_won?
+      (secret - user_guesses).empty?
     end
     
-    def user_lose?
+    def user_lost?
       missed_user_guesses.size >= max_misses
     end
   end

@@ -9,19 +9,18 @@ module Hangman
     
     def initialize
       @ui = Console.new
-      @state = State.new(secret: ChooseRandomWord.choose,
-                         max_misses: Config::MAX_GUESS_MISS)
+      @state = State.new(ChooseRandomWord.choose)
     end
    
-    def start      
+    def run  
       # display initial stage before user takes any guess
       ui.display_stage(state)
-
+     
       loop do
         consume_user_input
-        
-        ui.display_stage(state)
 
+        ui.display_stage(state)
+  
         break if state.game_over?
       end
     end
@@ -29,12 +28,7 @@ module Hangman
     private
 
     def consume_user_input
-      begin
-        guess = ui.take_user_guess
-      rescue Exception # user aborts game, by either ctrl+d or ctrl+c
-        exit
-      end
-      
+      guess = ui.take_user_guess
       state.submit_guess(guess) if user_guess_valid?(guess)
     end
 
@@ -44,7 +38,7 @@ module Hangman
         return false
       end
 
-      if state.guess_before?(guess)
+      if state.guessed?(guess)
         ui.repeated_guess
         false
       else 

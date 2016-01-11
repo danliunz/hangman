@@ -4,7 +4,7 @@ module Hangman
 class Game
     
   class State
-    attr_reader :secret, :user_guesses, :max_misses
+    attr_reader :user_guesses, :max_misses
     
     def initialize(secret, max_misses: Config::MAX_GUESS_MISS)
       @secret = secret.split(//)
@@ -26,7 +26,7 @@ class Game
     
     # the guesses user has missed so far
     def missed_user_guesses
-      user_guesses.reject { |g| secret.include?(g) }
+      user_guesses - secret
     end
     
     def game_over?
@@ -40,6 +40,18 @@ class Game
     def user_lost?
       missed_user_guesses.size >= max_misses
     end
+    
+    def underscored_secret
+      secret.map { |c| user_guesses.include?(c) ? "#{c} " : "_ "}
+    end
+    
+    def reveal_secret(ui)
+      ui.display(secret.join)
+    end
+    
+    private
+    
+    attr_reader :secret
   end
 
 end

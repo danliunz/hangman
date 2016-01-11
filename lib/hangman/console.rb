@@ -27,51 +27,48 @@ module Hangman
     end
     
     def invalid_guess
-      warn("Make a guess please")
+      display("Make a guess pleass\n")
     end
     
     def repeated_guess
-      warn("Do not repeat prior guess")
+      display("Do not repeat prior guess\n")
     end
 
-    private
-    
-    def warn(msg) 
-      puts(msg)
+    def display(msg)
+      print msg
     end
+    
+    private
     
     def display_game_result(game_state)
       if game_state.user_won?
-        puts("You have won!")
+        puts "You have won!"
       elsif game_state.user_lost?
-        puts("You have lost...")
-        puts("The secret word is: #{game_state.secret.join}")
+        puts "You have lost..."
+        
+        print "The secret word is: "
+        game_state.reveal_secret(self)
+        
+        puts
       end
     end
     
     def display_secret(game_state)
-      print("Word: ")
-
-      result = 
-        game_state.secret.map do |c|
-          game_state.guessed?(c) ? "#{c} " : "_ "
-        end
-      
-      puts result.join
+      puts "Word: #{game_state.underscored_secret.join}"
     end
     
     def display_last_guess(game_state)
-      print("Guess: ")
-      print("#{game_state.last_guess}") if game_state.last_guess
+      print "Guess: "
+      print "#{game_state.last_guess}" if game_state.last_guess
       puts
     end
     
     def display_misses(game_state)
-      print("Misses: ")
+      print "Misses: "
         
       misses = game_state.missed_user_guesses
-      print(misses.join(","))
-      puts(" (#{game_state.max_misses - misses.size} chances left)")
+      print misses.join(",")
+      puts " (#{game_state.max_misses - misses.size} chances left)"
     end
   end
   

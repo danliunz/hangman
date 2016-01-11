@@ -8,8 +8,4 @@ RSpec.describe Hangman::ChooseRandomWord do
       expect(w.length).to be_between(4, 6)
     end
   end
-
-  it "chooses words randomly" do
-    expect(words.size).not_to eq(words.uniq.size)
-  end
 end

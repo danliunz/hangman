@@ -3,7 +3,6 @@ require "hangman/game/config"
 
 describe Hangman::Game::State do
   let(:secret) { "buffer" }
-  let(:wrong_guesses) { %w{1 2 3} }
   let(:max_misses) { 6 }
   subject(:game_state) { described_class.new(secret, max_misses: max_misses) }
 
@@ -23,6 +22,12 @@ describe Hangman::Game::State do
     expect(game_state).to be_game_over
     expect(game_state).to be_user_won
     expect(game_state).not_to be_user_lost
+  end
+
+  def guess_letters(*letters)
+    letters.each do |letter|
+      game_state.submit_guess(letter)
+    end
   end
   
   context "with no user guess" do
@@ -45,41 +50,23 @@ describe Hangman::Game::State do
     context "less than max misses and serect is not revealed" do
       it "tells game is not over" do
         
-        # wrong guess
-        game_state.submit_guess(wrong_guesses[0])
+        # 3 wrong guesses
+        %w{1 2 3}.each { |g| game_state.submit_guess(g)}
+       
+        # then 1 right guess
+        game_state.submit_guess("f")
         
         expect_game_not_over
-        expect(game_state.last_guess).to eq(wrong_guesses[0])
-        expect(game_state.missed_user_guesses).to contain_exactly(wrong_guesses[0])
-        
-        # wrong guess again
-        game_state.submit_guess(wrong_guesses[1])
-        
-        expect_game_not_over
-        expect(game_state.last_guess).to eq(wrong_guesses[1])
-        expect(game_state.missed_user_guesses).to match_array(wrong_guesses[0..1])
-        
-        # right guess
-        game_state.submit_guess(secret[0])
-        
-        expect_game_not_over
-        expect(game_state.last_guess).to eq(secret[0])
-        expect(game_state.missed_user_guesses).to match_array(wrong_guesses[0..1])
-        
-        # wrong guess
-        game_state.submit_guess(wrong_guesses[2])
-        
-        expect_game_not_over
-        expect(game_state.last_guess).to eq(wrong_guesses[2])
-        expect(game_state.missed_user_guesses).to match_array(wrong_guesses[0..2])
+        expect(game_state.missed_user_guesses).to match_array(%w{1 2 3})
+        expect(game_state.last_guess).to eq("f")
       end
     end
     
     context ">= max misses" do
       it "tells the user loses" do
-        game_state.submit_guess(secret[0])
+        game_state.submit_guess("b")
         
-        game_state.max_misses.times do |i|
+        %w{1 2 3 4 5 6}.each do |i|
           game_state.submit_guess(i.to_s)
         end
         
@@ -90,7 +77,7 @@ describe Hangman::Game::State do
     context "reveal the secret" do
       it "tells the user wins the game" do
         # one miss 
-        game_state.submit_guess(wrong_guesses[0])
+        game_state.submit_guess("1")
         
         secret.split(//).shuffle.each { |c| game_state.submit_guess(c) }
               

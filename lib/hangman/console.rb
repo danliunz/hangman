@@ -14,10 +14,10 @@ module Hangman
       s && s.length > 1 ? s[0].downcase : nil
     end
     
-    def display_stage(game_state) 
+    def display_stage(game_state)
       puts
       
-      display_secret(game_state)
+      display_obsecured_secret(game_state)
       display_last_guess(game_state)
       display_misses(game_state)
       
@@ -45,16 +45,13 @@ module Hangman
         puts "You have won!"
       elsif game_state.user_lost?
         puts "You have lost..."
-        
-        print "The secret word is: "
-        game_state.reveal_secret(self)
-        
-        puts
+        puts "The secret word is: #{game_state.secret.join}"
       end
     end
     
-    def display_secret(game_state)
-      puts "Word: #{game_state.underscored_secret.join}"
+    def display_obsecured_secret(game_state)
+      s = game_state.secret.map { |c| game_state.guessed?(c) ? "#{c} " : "_ " }
+      puts "Word: #{s.join}"
     end
     
     def display_last_guess(game_state)

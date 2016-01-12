@@ -9,30 +9,31 @@ module Hangman
     
     def initialize
       @ui = Console.new
-      @state = State.new(ChooseRandomWord.choose)
+      @state = State.new(ChooseRandomWord.call)
     end
    
     def run  
       # display initial stage before user takes any guess
       ui.display_stage(state)
      
-      loop do
-        consume_user_input
-
+      until state.game_over? do
+        consume_player_input
+        
         ui.display_stage(state)
-  
-        break if state.game_over?
       end
     end
     
     private
 
-    def consume_user_input
-      guess = ui.take_user_guess
-      state.submit_guess(guess) if user_guess_valid?(guess)
+    def consume_player_input
+      guess = ui.take_player_guess
+      
+      if validate_guess(guess)
+        state.submit_guess(guess)
+      end
     end
 
-    def user_guess_valid?(guess)
+    def validate_guess(guess)
       if guess.nil?
         ui.invalid_guess
         return false

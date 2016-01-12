@@ -1,44 +1,42 @@
-require "set"
-
 module Hangman
 class Game
     
   class State
-    attr_reader :secret, :user_guesses, :max_misses
+    attr_reader :secret, :guesses, :max_misses
     
     def initialize(secret, max_misses: Config::MAX_GUESS_MISS)
-      @secret = secret.split(//)
+      @secret = secret.chars
       @max_misses = max_misses
-      @user_guesses = []
+      @guesses = []
     end
     
     def submit_guess(guess)
-      user_guesses << guess unless guessed?(guess)
+      guesses << guess
     end
     
     def guessed?(guess)
-      user_guesses.include?(guess)
+      guesses.include?(guess)
     end
     
     def last_guess
-      user_guesses.last
+      guesses.last
     end
     
-    # the guesses user has missed so far
-    def missed_user_guesses
-      user_guesses - secret
+    # the guesses player has missed so far
+    def missed_guesses
+      guesses - secret
     end
     
     def game_over?
-      user_won? || user_lost?
+      won? || lost?
     end
 
-    def user_won?
-      (secret - user_guesses).empty?
+    def won?
+      (secret - guesses).empty?
     end
     
-    def user_lost?
-      missed_user_guesses.size >= max_misses
+    def lost?
+      missed_guesses.size >= max_misses
     end    
   end
 

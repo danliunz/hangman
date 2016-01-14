@@ -1,5 +1,5 @@
 require "hangman/game/state"
-require "hangman/game/config"
+require "hangman/game/guess"
 
 module Hangman
   # Terminal to output game status
@@ -7,10 +7,8 @@ module Hangman
     def take_player_guess
       print("Make a guess: ")
       
-      # If user presses ctrl+d or just a newline char,
-      # return nil indicating invalid input
-      guess = gets
-      guess && guess.length > 1 ? guess[0].downcase : nil
+      input = gets
+      Game::Guess.new(input ? input.chomp : nil)
     end
     
     def display_stage(game_state)
@@ -26,13 +24,18 @@ module Hangman
     end
     
     def invalid_guess
-      puts "Make a guess please"
+      puts "Invalid guess, try again"
     end
     
     def repeated_guess
       puts "Do not repeat prior guess"
     end
 
+    def wait_for_next_game
+      puts "Press Enter to start a new game"
+      gets
+    end
+    
     private
     
     def display_game_result(game_state)

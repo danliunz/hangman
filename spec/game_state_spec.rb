@@ -35,32 +35,37 @@ RSpec.describe Hangman::Game::State do
   end
   
   context "with user guesses" do
+    let(:three_wrong_guesses) { %w{x y z} }
+    
     it "detects repeated guess" do
-      %w{a b c}.each { |g| game_state.submit_guess(g) }
+      three_wrong_guesses.each { |g| game_state.submit_guess(g) }
       
-      %w{a b c}.each { |g| expect(game_state).to be_guessed(g) }
+      three_wrong_guesses.each { |g| expect(game_state).to be_guessed(g) }
     end
     
     context "less than max misses and secret is not revealed" do
-      it "tells game is not over" do
-        
-        # 3 wrong guesses
-        %w{1 2 3}.each { |g| game_state.submit_guess(g)}
+      let(:three_wrong_guesses) { %w{x y z} }
+      let(:one_right_guess) { "f" }
+      
+      it "tells game is not over" do        
+        three_wrong_guesses.each { |g| game_state.submit_guess(g)}
        
-        # then 1 right guess
-        game_state.submit_guess("f")
+        game_state.submit_guess(one_right_guess)
         
         expect_game_not_over
-        expect(game_state.missed_guesses).to match_array(%w{1 2 3})
-        expect(game_state.last_guess).to eq("f")
+        expect(game_state.missed_guesses).to match_array(three_wrong_guesses)
+        expect(game_state.last_guess).to eq(one_right_guess)
       end
     end
     
     context "too many misses" do
+      let(:six_wrong_guesses) { %w{o p q x y z} }
+      let(:one_right_guess) { "b" }
+      
       it "tells the user loses" do
-        game_state.submit_guess("b")
+        game_state.submit_guess(one_right_guess)
         
-        %w{1 2 3 4 5 6}.each do |i|
+        six_wrong_guesses.each do |i|
           game_state.submit_guess(i.to_s)
         end
         
@@ -69,9 +74,11 @@ RSpec.describe Hangman::Game::State do
     end
     
     context "reveal the secret" do
+      let(:one_wrong_guess) { "x" }
+      
       it "tells the user wins the game" do
         # one miss 
-        game_state.submit_guess("1")
+        game_state.submit_guess(one_wrong_guess)
         
         secret.chars.shuffle.each { |c| game_state.submit_guess(c) }
               

@@ -1,3 +1,5 @@
+require "hangman/game/config"
+
 module Hangman
 class Game
     

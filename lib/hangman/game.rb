@@ -1,3 +1,5 @@
+require "hangman/guess_factory"
+
 module Hangman
   class Game
     attr_reader :ui, :state
@@ -11,23 +13,25 @@ module Hangman
       ui.display_stage(state)
      
       begin
-        consume_player_input
-        
-        ui.display_stage(state)
+        guess = take_player_guess    
+        process_player_guess(guess)
       end until state.game_over?
     end
     
     private
 
-    def consume_player_input
-      guess = ui.take_player_guess
-      
-      if !guess.valid?
+    def take_player_guess
+      GuessFactory.new_guess(ui.take_player_guess)
+    end
+    
+    def process_player_guess(guess)
+      if guess.nil?
         ui.invalid_guess
-      elsif state.guessed?(guess.content)
+      elsif state.guessed?(guess)
         ui.repeated_guess
       else
-        state.submit_guess(guess.content)
+        state.submit_guess(guess)
+        ui.display_stage(state)
       end
     end
   end

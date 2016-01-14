@@ -1,5 +1,4 @@
 require "hangman/game/state"
-require "hangman/game/guess"
 
 module Hangman
   # Terminal to output game status
@@ -8,7 +7,7 @@ module Hangman
       print("Make a guess: ")
       
       input = gets
-      Game::Guess.new(input ? input.chomp : nil)
+      input ? input.chomp : input
     end
     
     def display_stage(game_state)
@@ -25,10 +24,12 @@ module Hangman
     
     def invalid_guess
       puts "Invalid guess, try again"
+      puts
     end
     
     def repeated_guess
       puts "Do not repeat prior guess"
+      puts
     end
 
     def wait_for_next_game

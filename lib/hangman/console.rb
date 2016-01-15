@@ -5,7 +5,7 @@ module Hangman
   class Console
     def take_player_guess
       print("Make a guess: ")
-      
+
       input = gets
       input ? input.chomp : input
     end

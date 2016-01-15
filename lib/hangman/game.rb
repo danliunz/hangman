@@ -13,8 +13,9 @@ module Hangman
       ui.display_stage(state)
      
       begin
-        guess = take_player_guess    
+        guess = take_player_guess
         process_player_guess(guess)
+        
       end until state.game_over?
     end
     

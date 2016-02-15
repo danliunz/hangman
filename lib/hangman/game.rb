@@ -1,5 +1,3 @@
-require "hangman/guess_factory"
-
 module Hangman
   class Game
     attr_reader :ui, :state
@@ -22,7 +20,7 @@ module Hangman
     private
 
     def take_player_guess
-      GuessFactory.new_guess(ui.take_player_guess)
+      ui.take_player_guess
     end
     
     def process_player_guess(guess)
